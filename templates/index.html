@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" ></meta>
+	<meta http-equiv="Pragma" content="no-cache" ></meta>
+	<meta http-equiv="Expires" content="0" ></meta>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/base/jquery-ui.css" type="text/css" media="all" /> 
+		
+		
+		 <!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<!-- Latest compiled JavaScript -->
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+		
+		
+		<script>
+			myapp=angular.module("myapp", []).config(function($httpProvider) {
+    			$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    			$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+			});
+			myapp.controller("HelloController", function($scope,$http)
+			{
+				$scope.auto_correct = function(event)
+				{
+				// do something with the keycode
+					if(event.keyCode==32)
+					{
+						$scope.str=$(".ask_query").val(); 
+						$scope.lastword="";
+						$scope.lastword=$scope.str.substring($scope.str.trim().lastIndexOf(" ")+1);
+						$http({ 
+							method: 'POST', 
+							url: '/correct',
+							headers: {
+								'Content-Type': 'application/json; charset=utf-8',
+								'Accept': 'application/json'
+							},
+							data: JSON.stringify($scope.lastword)
+						})
+						.success(function(data, status, headers, config) {
+							$scope.str=$scope.str.replace($scope.lastword,data);
+							$(".ask_query").val($scope.str+" ");
+						})
+						.error(function(data,status, headers, config) {
+							alert("Cannot fetch words");	
+						});	
+					}
+
+				}
+
+			});
+		</script>
+
+	</head>
+	
+	<body ng-app="myapp" ng-controller="HelloController">
+		<div class="container">
+				<div class="row">
+					<div class="col-md-6">
+					<h2>Spell Checker</h2>
+						<form action="/" method="POST">
+							{% csrf_token %}
+							<div id="custom-search-input">
+								<div class="input-group col-md-12">
+									<input type="text" ng-keyup="auto_correct($event)" class="form-control input-lg ask_query" placeholder="Search Here" />
+									<span class="input-group-btn">
+										<button class="btn btn-info btn-lg" type="button">
+											<i class="glyphicon glyphicon-search"></i>
+										</button>
+									</span>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+
+				<div class="row" style="margin-top:30px">
+					<blockquote class="blockquote">
+						<p>Enter your word in the search box above and press <mark><em>spacebar</em></mark> to see the result.</p>
+					</blockquote>
+				</div>
+			</div>
+		</div>
+	</body>
+	
+</html>
