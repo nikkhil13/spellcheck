@@ -30,8 +30,10 @@
 					if(event.keyCode==32)
 					{
 						$scope.str=$(".ask_query").val(); 
+						
 						$scope.lastword="";
-						$scope.lastword=$scope.str.substring($scope.str.trim().lastIndexOf(" ")+1);
+						$scope.lastword=$scope.str.substring($scope.str.trim().lastIndexOf(" ") + 1);
+						
 						$http({ 
 							method: 'POST', 
 							url: '/correct',
